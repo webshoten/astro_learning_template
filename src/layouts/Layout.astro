@@ -16,6 +16,19 @@ const { title } = Astro.props;
   </head>
   <body>
     <Nav />
-    <slot />
+    <main>
+      <slot />
+    </main>
   </body>
 </html>
+
+<style>
+  body {
+    margin: 0;
+    font-family: sans-serif;
+  }
+
+  main {
+    padding: 2rem;
+  }
+</style>
