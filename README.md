@@ -153,6 +153,14 @@
   ```
 - Markdownファイルを追加するだけで新しいページが自動生成される
 
+### getCollection() の仕組み
+- `getCollection('blog')` は直接フォルダを読んでいるのではなく、`content.config.ts` が仲介役
+- 流れ:
+  1. `content.config.ts` で `'blog'` コレクションを定義（名前・フォルダパス・スキーマ）
+  2. `npx astro sync` で設定を読み取り、`.astro/` に型定義とデータ参照情報を生成
+  3. `getCollection('blog')` 呼び出し時、`'blog'` キーで設定を参照 → 紐づいたフォルダを読み取り → スキーマでバリデーションして返す
+- この仕組みにより、型安全なデータ取得とバリデーションが実現できている
+
 ### 型定義の生成
 - Content Collectionsの追加・変更後は `npx astro sync` を実行する
 - `.astro/` ディレクトリに型定義が自動生成され、`getCollection()` の戻り値などに型が付く
