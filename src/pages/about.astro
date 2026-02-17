@@ -1,17 +1,8 @@
 ---
-import Nav from '../components/Nav.astro';
-
-const title = "About";
+import Layout from '../layouts/Layout.astro';
 ---
 
-<html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <title>{title}</title>
-  </head>
-  <body>
-    <Nav />
-    <h1>{title}</h1>
-    <p>このサイトはAstro学習用です。</p>
-  </body>
-</html>
+<Layout title="About">
+  <h1>About</h1>
+  <p>このサイトはAstro学習用です。</p>
+</Layout>

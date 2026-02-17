@@ -80,8 +80,31 @@
 - フロントマターで `import Nav from '../components/Nav.astro'` して、テンプレートで `<Nav />` と使う
 - 共通パーツを1ファイルにまとめることで、変更が1箇所で全ページに反映される（DRY原則）
 
+## レイアウトとProps (2026-02-17)
+
+### やったこと
+1. `src/layouts/Layout.astro` を書き換え、全ページ共通の `<html>`, `<head>`, `<Nav />` をまとめた
+2. `index.astro` と `about.astro` をレイアウトで包むようにリファクタ
+3. Props に `interface Props` で型定義を追加
+
+### 学んだこと
+- **レイアウト**: `src/layouts/` に共通の枠組みを定義。ページは中身だけ書けばよくなる
+- **Props**: 親から子にデータを渡す仕組み
+  - 親: `<Layout title="Hello Astro!">` で値を渡す
+  - 子: `const { title } = Astro.props;` で受け取る
+- **`<slot />`**: レイアウト内の差し込み口。各ページの中身がここに入る
+- **型定義**: フロントマター内に `interface Props` を定義すると `Astro.props` に型が付く
+  ```astro
+  ---
+  interface Props {
+    title: string;
+  }
+  const { title } = Astro.props;
+  ---
+  ```
+  - 渡し忘れや型違いをエディタが警告してくれる
+
 ---
 
 ## 次のステップ
-- [ ] レイアウト: 全ページ共通の `<html>`, `<head>` をまとめる
-- [ ] Props: 親から子コンポーネントにデータを渡す
+- [ ] スタイリング: `.astro` ファイル内のスコープ付き `<style>` を学ぶ

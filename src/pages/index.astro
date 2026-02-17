@@ -1,19 +1,11 @@
 ---
-import Nav from '../components/Nav.astro';
+import Layout from '../layouts/Layout.astro';
 
-const title = "Hello Astro!";
 const today = new Date().toLocaleDateString("ja-JP");
 ---
 
-<html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <title>{title}</title>
-  </head>
-  <body>
-    <Nav />
-    <h1>{title}</h1>
-    <p>今日は {today} です</p>
-    <p>Astro学習はじめました！</p>
-  </body>
-</html>
+<Layout title="Hello Astro!">
+  <h1>Hello Astro!</h1>
+  <p>今日は {today} です</p>
+  <p>Astro学習はじめました！</p>
+</Layout>
