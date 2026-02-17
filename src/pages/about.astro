@@ -1,4 +1,6 @@
 ---
+import Nav from '../components/Nav.astro';
+
 const title = "About";
 ---
 
@@ -8,8 +10,8 @@ const title = "About";
     <title>{title}</title>
   </head>
   <body>
+    <Nav />
     <h1>{title}</h1>
     <p>このサイトはAstro学習用です。</p>
-    <a href="/">トップに戻る</a>
   </body>
 </html>

@@ -1,6 +1,6 @@
 ---
-// --- (フェンス) の中は JavaScript が書ける
-// ここはサーバー側で実行され、ブラウザには送られない
+import Nav from '../components/Nav.astro';
+
 const title = "Hello Astro!";
 const today = new Date().toLocaleDateString("ja-JP");
 ---
@@ -11,9 +11,9 @@ const today = new Date().toLocaleDateString("ja-JP");
     <title>{title}</title>
   </head>
   <body>
+    <Nav />
     <h1>{title}</h1>
     <p>今日は {today} です</p>
     <p>Astro学習はじめました！</p>
-    <a href="/about">Aboutページへ</a>
   </body>
 </html>
