@@ -1,46 +1,43 @@
-# Astro Starter Kit: Basics
+# Astro 学習ノート
 
-```sh
-npm create astro@latest -- --template basics
+## セットアップ (2026-02-17)
+
+### やったこと
+1. `npm create astro@latest .` でプロジェクトを初期化
+   - テンプレート: basic starter project
+   - 依存関係: インストール済み
+   - Git: 初期化済み
+
+### プロジェクト構造
 ```
-
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
 /
-├── public/
+├── public/          ... 静的ファイル（そのまま配信される）
 │   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+├── src/
+│   ├── assets/      ... 画像など（ビルド時に最適化される）
+│   ├── components/  ... 再利用可能なコンポーネント
+│   ├── layouts/     ... ページの共通レイアウト
+│   └── pages/       ... ページ（ファイル = URL になる）
+│       └── index.astro  → localhost:4321/
+├── astro.config.mjs ... Astroの設定ファイル
+├── package.json
+└── tsconfig.json
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+### 基本コマンド
+| コマンド | 説明 |
+|:--|:--|
+| `npm run dev` | 開発サーバー起動 (localhost:4321) |
+| `npm run build` | 本番ビルド (`./dist/` に出力) |
+| `npm run preview` | ビルド結果をプレビュー |
 
-## 🧞 Commands
+### 学んだこと
+- `.astro` ファイルは `---`（フェンス）で囲んだ上部がJavaScript、下部がHTMLテンプレート
+- `src/pages/` 内のファイルが自動的にルーティングされる（ファイルベースルーティング）
+- `public/` は静的ファイル置き場、`src/assets/` はビルド時に最適化されるアセット置き場
 
-All commands are run from the root of the project, from a terminal:
+---
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+## 次のステップ
+- [ ] `npm run dev` で開発サーバーを起動して確認する
+- [ ] index.astro を編集して Hello World を表示してみる
