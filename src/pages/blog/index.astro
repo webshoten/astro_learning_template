@@ -2,12 +2,17 @@
 import Layout from '../../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 
+// content.config.ts で定義した 'blog' コレクションから全記事を取得
+// 戻り値はスキーマに基づいた型付きの配列
 const posts = await getCollection('blog');
 ---
 
 <Layout title="ブログ一覧">
   <h1>ブログ一覧</h1>
   <ul>
+    {/* posts.map() で記事ごとにリンクを生成 */}
+    {/* post.id はMarkdownのファイル名（拡張子なし）が自動的に入る */}
+    {/* post.data にはfrontmatter（title, date）が型付きで入っている */}
     {posts.map((post) => (
       <li>
         <a href={`/blog/${post.id}`}>

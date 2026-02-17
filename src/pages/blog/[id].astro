@@ -2,22 +2,31 @@
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
 
-// SSGでは全ページのパスを事前に定義する必要がある
+// --- getStaticPaths() ---
+// Astroがビルド時に自動で呼び出す特別な関数
+// [id].astro のような動的ルーティングでは必須（SSGの場合）
+// 「どのページを生成するか」のリストを返す
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
+  // 記事の数だけページ情報を返す
+  // params: URLのパラメータ（/blog/[id] の id 部分）
+  // props: そのページで Astro.props 経由で使えるデータ
   return posts.map((post) => ({
     params: { id: post.id },
     props: { post },
   }));
 }
 
+// getStaticPaths() の props で渡されたデータを受け取る
 const { post } = Astro.props;
+// MarkdownをHTMLに変換して <Content /> コンポーネントとして使えるようにする
 const { Content } = await render(post);
 ---
 
 <Layout title={post.data.title}>
   <h1>{post.data.title}</h1>
   <p>{post.data.date}</p>
+  {/* Markdownから変換されたHTMLがここに描画される */}
   <Content />
   <a href="/blog">← 一覧に戻る</a>
 </Layout>
