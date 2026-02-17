@@ -116,8 +116,50 @@
   - Astroが `data-astro-cid-xxxx` 属性を自動付与してスコープを実現している
 - グローバルに適用したい場合は `<style is:global>` を使う
 
+## 動的ルーティングとContent Collections (2026-02-17)
+
+### やったこと
+1. `src/content.config.ts` でブログコレクションを定義（スキーマ: title, date）
+2. `src/content/blog/` にMarkdown記事を2つ作成
+3. `src/pages/blog/index.astro` でブログ一覧ページを作成
+4. `src/pages/blog/[id].astro` で動的ルーティングによる個別記事ページを作成
+5. ナビにブログリンクを追加
+
+### Content Collections
+- `src/content/blog/` にMarkdownファイルを置いて記事を管理
+- `src/content.config.ts` でスキーマを定義 → zodで型安全にバリデーション
+  ```ts
+  const blog = defineCollection({
+    loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+    schema: z.object({
+      title: z.string(),
+      date: z.string(),
+    }),
+  });
+  ```
+- `getCollection('blog')` で全記事を型付きで取得できる
+
+### 動的ルーティング
+- `[id].astro` のようにファイル名を `[]` で囲むと動的パラメータになる
+- SSGでは `getStaticPaths()` で全パスを事前に列挙する必要がある
+  ```ts
+  export async function getStaticPaths() {
+    const posts = await getCollection('blog');
+    return posts.map((post) => ({
+      params: { id: post.id },
+      props: { post },
+    }));
+  }
+  ```
+- Markdownファイルを追加するだけで新しいページが自動生成される
+
+### 型定義の生成
+- Content Collectionsの追加・変更後は `npx astro sync` を実行する
+- `.astro/` ディレクトリに型定義が自動生成され、`getCollection()` の戻り値などに型が付く
+- 設定変更後はdevサーバーの再起動も必要
+
 ---
 
 ## 次のステップ
-- [ ] 動的ルーティング: `[slug].astro` でページを動的に生成
-- [ ] Content Collections: Markdownでコンテンツを管理する
+- [ ] `<script>` タグでクライアント側JSを書く
+- [ ] インテグレーション: React / Tailwind などを追加する

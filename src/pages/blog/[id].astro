@@ -1,0 +1,23 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+
+// SSGでは全ページのパスを事前に定義する必要がある
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { id: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<Layout title={post.data.title}>
+  <h1>{post.data.title}</h1>
+  <p>{post.data.date}</p>
+  <Content />
+  <a href="/blog">← 一覧に戻る</a>
+</Layout>
