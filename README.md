@@ -395,6 +395,21 @@
 - Biomeは高速だが `.astro` ファイル未対応
 - Prettierには公式の `prettier-plugin-astro` があり安定している
 
+## 環境変数 (2026-02-18)
+
+### やったこと
+1. `.env` を作成し `SITE_URL` を定義
+2. `client.ts` のベタ書き `http://localhost:4321` を `import.meta.env.SITE_URL` に置き換え
+
+### Astroの環境変数の仕組み
+- `.env` ファイルに定義し、`import.meta.env.変数名` で参照する
+- プレフィックスによってアクセス範囲が変わる:
+  | プレフィックス | アクセスできる場所 |
+  |:--|:--|
+  | `PUBLIC_` なし | サーバー側のみ（`---` 内, `.ts` ファイル） |
+  | `PUBLIC_` 付き | サーバー側 + クライアント側（ブラウザ） |
+- 本番デプロイ時は `.env` の値を本番URLに変えるだけでOK
+
 ### ファイル構成
 ```
 src/graphql/
