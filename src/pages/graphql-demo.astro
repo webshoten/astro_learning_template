@@ -1,6 +1,6 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { graphql, executeGraphQL } from '../graphql/client';
+import Layout from "../layouts/Layout.astro";
+import { graphql, executeGraphQL } from "../graphql/client";
 
 // gql.tada の graphql() でクエリを定義
 const PostsQuery = graphql(`
@@ -40,20 +40,21 @@ const hello2Result = await executeGraphQL(Hello2Query, { name: "Astro" });
   <h2>1. hello クエリ</h2>
   <p>{helloResult?.hello}</p>
   <p>{hello2Result?.hello2}</p>
-  
+
   <h2>2. posts クエリ（型付き！）</h2>
   <ul>
-    {postsResult?.posts.map((post) => (
-      <li>
-        <strong>{post.title}</strong>（{post.date}）
-      </li>
-    ))}
+    {
+      postsResult?.posts.map((post) => (
+        <li>
+          <strong>{post.title}</strong>（{post.date}）
+        </li>
+      ))
+    }
   </ul>
 
   <h2>3. GraphQL Playground</h2>
   <p>
-    <a href="/api/graphql" target="_blank">/api/graphql</a> にアクセスすると、
-    ブラウザ上でクエリを試せるPlaygroundが使えます。
+    <a href="/api/graphql" target="_blank">/api/graphql</a> にアクセスすると、 ブラウザ上でクエリを試せるPlaygroundが使えます。
   </p>
 
   <a href="/">← トップに戻る</a>

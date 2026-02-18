@@ -25,6 +25,8 @@
   },
   "devDependencies": {
     "chokidar-cli": "^3.0.0",
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "prettier": "^3.8.1",
+    "prettier-plugin-astro": "^0.14.1"
   }
 }

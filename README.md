@@ -379,6 +379,22 @@
 - `.ts` ファイル（`schema.ts`, `api/graphql.ts` 等）
 - テンプレート部分（HTML）には効かない
 
+## フォーマッター (2026-02-18)
+
+### やったこと
+1. `npm install -D prettier prettier-plugin-astro` でインストール
+2. `.prettierrc` にPrettier設定を作成（astroプラグイン有効化）
+3. `.vscode/settings.json` に保存時自動整形を設定
+
+### 設定内容
+- `.astro` ファイル → Astro拡張のフォーマッター（内部でPrettier + astroプラグイン使用）
+- `.ts`, `.tsx` ファイル → Prettier
+- ファイル保存時に自動で整形される（`editor.formatOnSave: true`）
+
+### なぜBiomeではなくPrettierか
+- Biomeは高速だが `.astro` ファイル未対応
+- Prettierには公式の `prettier-plugin-astro` があり安定している
+
 ### ファイル構成
 ```
 src/graphql/
