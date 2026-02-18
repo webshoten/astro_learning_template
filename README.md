@@ -187,8 +187,29 @@
 - React等のコンポーネントに `client:load` などのディレクティブを付けた部分が「Island」になる
 - 他のフレームワーク（Next.js等）はページ全体にJSを送るが、Astroは必要な部分だけ → 高速
 
+## SSGとSSRの共存 (2026-02-17)
+
+- Astroは **ページ単位** でSSG/SSRを切り替えられる
+  - SSRにしたいページ: `export const prerender = false;`
+  - SSGに戻したいページ: `export const prerender = true;`
+- 使い分けの例:
+  - トップページ、ブログ → SSG（静的でOK、高速）
+  - ダッシュボード、検索結果 → SSR（ユーザーごとに違う内容）
+
+## `<script>` タグでクライアント側JS (2026-02-18)
+
+### やったこと
+1. `index.astro` にカウンターUI（ボタン + 表示）を追加
+2. `<script>` タグ内でDOM操作によるカウンター機能を実装
+
+### 学んだこと
+- `<script>` タグ内のJSはブラウザで実行される（`---` 内とは別世界）
+- `---` 内の変数は `<script>` から直接参照できない
+- `<script>` はAstroがバンドル・最適化してくれる（TypeScriptもそのまま書ける）
+- これはIslandsではなく素のJS。Islandsは React/Vue 等のフレームワークコンポーネント + `client:*` ディレクティブ
+
 ---
 
 ## 次のステップ
-- [ ] `<script>` タグでクライアント側JSを書く
-- [ ] インテグレーション: React を追加して Astro Islands を体験する
+- [ ] `npx astro add react` でReactインテグレーションを追加する
+- [ ] Reactコンポーネントで Astro Islands を体験する

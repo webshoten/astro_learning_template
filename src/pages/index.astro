@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 
+// --- 内はサーバー側（ビルド時）に実行される
 const today = new Date().toLocaleDateString("ja-JP");
 ---
 
@@ -8,4 +9,52 @@ const today = new Date().toLocaleDateString("ja-JP");
   <h1>Hello Astro!</h1>
   <p>今日は {today} です</p>
   <p>Astro学習はじめました！</p>
+
+  {/* カウンターUI: HTMLは静的に生成される */}
+  <div class="counter">
+    <button id="decrement">-</button>
+    <span id="count">0</span>
+    <button id="increment">+</button>
+  </div>
+
+  {/* <script> 内はブラウザで実行される（--- 内とは別世界） */}
+  <script>
+    const count = document.getElementById("count")!;
+    const increment = document.getElementById("increment")!;
+    const decrement = document.getElementById("decrement")!;
+
+    let value = 0;
+
+    increment.addEventListener("click", () => {
+      value++;
+      count.textContent = String(value);
+    });
+
+    decrement.addEventListener("click", () => {
+      value--;
+      count.textContent = String(value);
+    });
+  </script>
 </Layout>
+
+<style>
+  .counter {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .counter button {
+    font-size: 1.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+  }
+
+  #count {
+    font-size: 1.5rem;
+    min-width: 2rem;
+    text-align: center;
+  }
+</style>
