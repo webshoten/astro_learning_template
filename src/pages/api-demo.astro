@@ -1,0 +1,58 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="APIデモ">
+  <h1>APIエンドポイント デモ</h1>
+
+  <h2>1. GETリクエスト</h2>
+  <p><code>/api/hello?name=○○</code> にGETリクエストを送る</p>
+  <div>
+    <input id="get-name" type="text" placeholder="名前を入力" />
+    <button id="get-btn">GETで送信</button>
+  </div>
+  <pre id="get-result">結果がここに表示されます</pre>
+
+  <h2>2. POSTリクエスト</h2>
+  <p><code>/api/hello</code> にJSONをPOSTする</p>
+  <div>
+    <input id="post-name" type="text" placeholder="名前を入力" />
+    <button id="post-btn">POSTで送信</button>
+  </div>
+  <pre id="post-result">結果がここに表示されます</pre>
+
+  <a href="/">← トップに戻る</a>
+
+  {/* APIを呼び出すクライアント側JS */}
+  <script>
+    // GETリクエスト
+    const getBtn = document.getElementById("get-btn")!;
+    const getName = document.getElementById("get-name") as HTMLInputElement;
+    const getResult = document.getElementById("get-result")!;
+
+    getBtn.addEventListener("click", async () => {
+      const name = getName.value || "ゲスト";
+      // /api/hello?name=○○ にGETリクエスト
+      const res = await fetch(`/api/hello?name=${encodeURIComponent(name)}`);
+      const data = await res.json();
+      getResult.textContent = JSON.stringify(data, null, 2);
+    });
+
+    // POSTリクエスト
+    const postBtn = document.getElementById("post-btn")!;
+    const postName = document.getElementById("post-name") as HTMLInputElement;
+    const postResult = document.getElementById("post-result")!;
+
+    postBtn.addEventListener("click", async () => {
+      const name = postName.value || "ゲスト";
+      // /api/hello にJSONをPOST
+      const res = await fetch("/api/hello", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const data = await res.json();
+      postResult.textContent = JSON.stringify(data, null, 2);
+    });
+  </script>
+</Layout>

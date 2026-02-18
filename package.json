@@ -4,9 +4,12 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "dev:all": "concurrently \"npm run dev\" \"npm run codegen:watch\"",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "codegen": "gql.tada generate-schema http://localhost:4321/api/graphql --output src/graphql/introspection.ts && gql.tada generate-output --tsconfig tsconfig.json",
+    "codegen:watch": "chokidar \"src/graphql/schema.ts\" -c \"npm run codegen\" --initial"
   },
   "dependencies": {
     "@astrojs/node": "^9.5.3",
@@ -14,7 +17,14 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "astro": "^5.17.1",
+    "gql.tada": "^1.9.0",
+    "graphql": "^16.12.0",
+    "graphql-yoga": "^5.18.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^9.2.1"
   }
 }

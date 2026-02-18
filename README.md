@@ -276,9 +276,101 @@
 - デフォルトはフェードアニメーション
 - `transition:animate="slide"` などで要素ごとにカスタマイズも可能
 
+## APIエンドポイント (2026-02-18)
+
+### やったこと
+1. `src/pages/api/hello.ts` にGET/POST対応のAPIエンドポイントを作成
+2. `src/pages/api-demo.astro` でAPIを呼び出すデモページを作成
+3. ナビにAPIデモリンクを追加
+
+### 学んだこと
+- `src/pages/api/` に `.ts` ファイルを置くとAPIエンドポイントになる（ファイルベースルーティング）
+  - `src/pages/api/hello.ts` → `/api/hello`
+- `export const GET` / `export const POST` でHTTPメソッドごとに処理を分ける
+  ```ts
+  import type { APIRoute } from "astro";
+
+  export const GET: APIRoute = ({ url }) => {
+    const name = url.searchParams.get("name") || "ゲスト";
+    return new Response(JSON.stringify({ message: `こんにちは、${name}さん！` }), {
+      headers: { "Content-Type": "application/json" },
+    });
+  };
+  ```
+- 戻り値は Web標準の `Response` オブジェクト
+- SSRモードで動作する（リクエストごとにサーバーで実行）
+- クライアント側からは `fetch("/api/hello")` で呼び出す
+
+## GraphQL + gql.tada (2026-02-18)
+
+### やったこと
+1. `npm install graphql graphql-yoga gql.tada` でインストール
+2. `src/graphql/schema.ts` にGraphQLスキーマ（typeDefs + resolvers）を定義
+3. `src/pages/api/graphql.ts` にGraphQLエンドポイントを作成（graphql-yoga）
+4. gql.tada のセットアップ（型付きクライアント）
+5. `src/pages/graphql-demo.astro` で型付きクエリのデモページを作成
+
+### GraphQLサーバー側
+- `graphql-yoga` を使ってAPIエンドポイント内にGraphQLサーバーを構築
+- `src/graphql/schema.ts` で `typeDefs`（データの型）と `resolvers`（データ取得ロジック）を定義
+- `/api/graphql` にアクセスするとGraphQL Playgroundが使える
+- yogaのレスポンスは `new Response(response.body, ...)` でAstroのResponseに変換が必要
+
+### gql.tada セットアップ手順
+1. スキーマからSDLを生成:
+   ```bash
+   npx gql.tada generate-schema http://localhost:4321/api/graphql --output src/graphql/introspection.ts
+   ```
+2. `tsconfig.json` にプラグイン設定を追加:
+   ```json
+   "plugins": [{
+     "name": "gql.tada/ts-plugin",
+     "schema": "./src/graphql/introspection.ts",
+     "tadaOutputLocation": "./src/graphql/graphql-env.d.ts"
+   }]
+   ```
+3. 型定義ファイルを生成:
+   ```bash
+   npx gql.tada generate-output --tsconfig tsconfig.json
+   ```
+4. Cursor/VSCode で「TypeScript: Select TypeScript Version」→「Use Workspace Version」を選択
+
+### gql.tada の仕組み
+- `generate-output` で `graphql-env.d.ts` が生成される（スキーマのintrospection型情報）
+- `graphql-env.d.ts` 内の `declare module 'gql.tada'` で型情報が自動適用される
+- `graphql()` でクエリを書くと、スキーマと照合して戻り値の型が自動推論される
+- `executeGraphQL()` ヘルパーで `TadaDocumentNode` の型を `Result` として伝播させる
+
+### スキーマ変更時の型の再生成
+- `schema.ts` を変更したら `generate-schema` → `generate-output` の2コマンドを再実行する必要がある
+- これを自動化するため `chokidar-cli` + `concurrently` を導入:
+  ```bash
+  npm install -D chokidar-cli concurrently
+  ```
+- 追加したスクリプト:
+  | コマンド | 説明 |
+  |:--|:--|
+  | `npm run codegen` | 手動で型を再生成 |
+  | `npm run codegen:watch` | `schema.ts` を監視して自動で型を再生成 |
+  | `npm run dev:all` | devサーバー + codegen watch を同時起動 |
+- 今後は `npm run dev:all` で起動すれば、`schema.ts` を編集するだけで自動的に型が更新される
+
+### 注意点
+- `graphql()` で生成された DocumentNode は `toString()` ではなく `print()`（graphqlパッケージ）でクエリ文字列に変換する
+
+### ファイル構成
+```
+src/graphql/
+├── schema.ts          ... GraphQLスキーマ定義（サーバー側）
+├── client.ts          ... graphql() と executeGraphQL()（クライアント側）
+├── introspection.ts   ... スキーマSDL（generate-schemaで生成）
+└── graphql-env.d.ts   ... 型情報（generate-outputで生成）
+```
+
 ---
 
 ## 次のステップ
-- [ ] APIエンドポイント: `src/pages/api/` でREST APIを作る
 - [ ] 画像最適化: `<Image />` で自動リサイズ・WebP変換
+- [ ] 環境変数: `.env` でAPIキー等を管理
+- [ ] ミドルウェア: リクエスト前の共通処理
 - [ ] デプロイ: 実際にサイトを公開する

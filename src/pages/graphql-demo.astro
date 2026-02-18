@@ -1,0 +1,52 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { graphql, executeGraphQL } from '../graphql/client';
+
+// gql.tada の graphql() でクエリを定義
+const PostsQuery = graphql(`
+  query {
+    posts {
+      id
+      title
+      date
+    }
+  }
+`);
+
+const HelloQuery = graphql(`
+  query Hello($name: String) {
+    hello(name: $name)
+  }
+`);
+
+// executeGraphQL を使うと戻り値に型が付く！
+// postsResult の型: { posts: { id: string, title: string, date: string }[] }
+const postsResult = await executeGraphQL(PostsQuery);
+
+// variables にも型が効く（name: String と推論される）
+const helloResult = await executeGraphQL(HelloQuery, { name: "Astro" });
+---
+
+<Layout title="GraphQLデモ">
+  <h1>GraphQL デモ</h1>
+
+  <h2>1. hello クエリ</h2>
+  <p>{helloResult?.hello}</p>
+
+  <h2>2. posts クエリ（型付き！）</h2>
+  <ul>
+    {postsResult?.posts.map((post) => (
+      <li>
+        <strong>{post.title}</strong>（{post.date}）
+      </li>
+    ))}
+  </ul>
+
+  <h2>3. GraphQL Playground</h2>
+  <p>
+    <a href="/api/graphql" target="_blank">/api/graphql</a> にアクセスすると、
+    ブラウザ上でクエリを試せるPlaygroundが使えます。
+  </p>
+
+  <a href="/">← トップに戻る</a>
+</Layout>
