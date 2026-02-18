@@ -260,8 +260,25 @@
 | `/blog`, `/blog/[id]` | SSG | 記事は事前ビルドでOK |
 | `/ssr-demo` | SSR（デフォルト） | リクエストごとに内容が変わる |
 
+## View Transitions (2026-02-18)
+
+### やったこと
+1. `Layout.astro` に `<ClientRouter />` を1行追加
+
+### 学んだこと
+- View Transitions API自体はブラウザのネイティブAPI（Astro固有ではない）
+- ただしAstroが特別なのは **MPAなのにView Transitionsを簡単に使える** 点
+  - SPA（Next.js等）→ JS制御なのでアニメーションは自然にできる
+  - MPA（従来）→ HTML丸ごと読み直しなのでアニメーションが難しい
+  - Astro → MPAだが、裏側でページ取得→DOM差分→アニメーションを自動処理
+- `<ClientRouter />` を `<head>` に追加するだけで全ページに適用される
+- ※ Astro 4 では `ViewTransitions` という名前だった（5で `ClientRouter` にリネーム）
+- デフォルトはフェードアニメーション
+- `transition:animate="slide"` などで要素ごとにカスタマイズも可能
+
 ---
 
 ## 次のステップ
+- [ ] APIエンドポイント: `src/pages/api/` でREST APIを作る
+- [ ] 画像最適化: `<Image />` で自動リサイズ・WebP変換
 - [ ] デプロイ: 実際にサイトを公開する
-- [ ] より実践的なサイト構築へ

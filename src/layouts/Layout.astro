@@ -1,5 +1,9 @@
 ---
 import Nav from '../components/Nav.astro';
+// ClientRouter: ページ遷移をSPAのようにスムーズにする
+// これ1つで全ページのリンク遷移にアニメーションが付く
+// ※ Astro 4では ViewTransitions という名前だった（5でリネーム）
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title: string;
@@ -13,6 +17,7 @@ const { title } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <title>{title}</title>
+    <ClientRouter />
   </head>
   <body>
     <Nav />
