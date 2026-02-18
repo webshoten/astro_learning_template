@@ -208,8 +208,33 @@
 - `<script>` はAstroがバンドル・最適化してくれる（TypeScriptもそのまま書ける）
 - これはIslandsではなく素のJS。Islandsは React/Vue 等のフレームワークコンポーネント + `client:*` ディレクティブ
 
+## Astro Islands 体験 (2026-02-18)
+
+### やったこと
+1. `npx astro add react` でReactインテグレーションを追加（質問はすべてYes）
+2. `src/components/Counter.tsx` にReactカウンターコンポーネントを作成
+3. `index.astro` に3種類のカウンターを並べて比較
+
+### 3つのカウンター比較
+| # | 種類 | 動く？ | 理由 |
+|:--|:--|:--|:--|
+| 1 | 素のJS（`<script>`） | 動く | ブラウザでJS実行 |
+| 2 | React + `client:load` | 動く | **Island！** ReactのJSがブラウザに送られる |
+| 3 | React（`client:` なし） | 動かない | HTMLだけ出力、JSは送られない |
+
+### 学んだこと
+- `npx astro add <名前>` でインテグレーション（React, Vue, Tailwind等）を追加できる
+- Reactコンポーネントでも `client:*` を付けなければ静的HTMLとして出力されるだけ（JSゼロ）
+- `client:*` ディレクティブを付けた部分だけが **Island** になり、JSがブラウザに送られる
+- `client:` ディレクティブの種類:
+  | ディレクティブ | 動作 |
+  |:--|:--|
+  | `client:load` | ページ読み込み時にすぐ実行 |
+  | `client:idle` | ブラウザがアイドル状態になったら実行 |
+  | `client:visible` | コンポーネントが画面に表示されたら実行 |
+
 ---
 
 ## 次のステップ
-- [ ] `npx astro add react` でReactインテグレーションを追加する
-- [ ] Reactコンポーネントで Astro Islands を体験する
+- [ ] デプロイ: 実際にサイトを公開する
+- [ ] より実践的なサイト構築へ

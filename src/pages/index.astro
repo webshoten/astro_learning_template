@@ -1,7 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Counter from '../components/Counter.tsx';
 
-// --- 内はサーバー側（ビルド時）に実行される
 const today = new Date().toLocaleDateString("ja-JP");
 ---
 
@@ -10,14 +10,23 @@ const today = new Date().toLocaleDateString("ja-JP");
   <p>今日は {today} です</p>
   <p>Astro学習はじめました！</p>
 
-  {/* カウンターUI: HTMLは静的に生成される */}
+  <h2>1. 素のJS版カウンター（scriptタグ）</h2>
   <div class="counter">
     <button id="decrement">-</button>
     <span id="count">0</span>
     <button id="increment">+</button>
   </div>
 
-  {/* <script> 内はブラウザで実行される（--- 内とは別世界） */}
+  <h2>2. React版カウンター（Island）</h2>
+  {/* client:load を付けるとこのコンポーネントが Island になる */}
+  {/* ブラウザにReactのJSが送られ、インタラクティブになる */}
+  <Counter client:load />
+
+  <h2>3. React版（client:なし）</h2>
+  {/* client: ディレクティブなし = HTMLだけ出力、JSは送られない */}
+  {/* ボタンを押しても動かない！ */}
+  <Counter />
+
   <script>
     const count = document.getElementById("count")!;
     const increment = document.getElementById("increment")!;
