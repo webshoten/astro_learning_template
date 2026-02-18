@@ -1,0 +1,36 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// SSRページ: このコードはリクエストごとにサーバーで実行される
+// SSGと違い、ビルド時に固定されない
+
+// リクエストの情報を取得できる（SSRならでは）
+const url = new URL(Astro.request.url);
+const name = url.searchParams.get("name") || "ゲスト";
+
+// 毎回サーバーで実行されるので、アクセスするたびに時刻が変わる
+const now = new Date().toLocaleTimeString("ja-JP");
+
+// ランダムな数値も毎回変わる
+const randomNumber = Math.floor(Math.random() * 100);
+---
+
+<Layout title="SSRデモ">
+  <h1>SSRデモページ</h1>
+  <p>このページはリクエストごとにサーバーで生成されます。</p>
+
+  <h2>リクエスト情報</h2>
+  <ul>
+    <li>アクセス時刻: {now}（リロードすると変わる！）</li>
+    <li>ランダム数値: {randomNumber}（リロードすると変わる！）</li>
+    <li>名前: {name}</li>
+  </ul>
+
+  <p>URLパラメータを試してみてください:</p>
+  <ul>
+    <li><a href="/ssr-demo?name=太郎">/ssr-demo?name=太郎</a></li>
+    <li><a href="/ssr-demo?name=花子">/ssr-demo?name=花子</a></li>
+  </ul>
+
+  <a href="/">← トップに戻る</a>
+</Layout>

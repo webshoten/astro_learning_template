@@ -233,6 +233,33 @@
   | `client:idle` | ブラウザがアイドル状態になったら実行 |
   | `client:visible` | コンポーネントが画面に表示されたら実行 |
 
+## SSR実践 (2026-02-18)
+
+### やったこと
+1. `npx astro add node` でNode.jsアダプターを追加
+2. `astro.config.mjs` に `output: 'server'` を追加（デフォルトをSSRに変更）
+3. `src/pages/ssr-demo.astro` を作成（SSRならではの動的ページ）
+4. 既存ページに `export const prerender = true` を追加してSSGを維持
+
+### 設定
+- `output: 'server'` → デフォルトがSSR。ページ単位で `prerender = true` にするとSSG
+- `output: 'static'`（デフォルト）→ 全ページSSG。ページ単位で `prerender = false` にするとSSR
+- SSRにはアダプターが必要（`@astrojs/node`, `@astrojs/vercel` 等）
+
+### SSRならではの機能
+- `Astro.request` でリクエスト情報にアクセスできる
+- URLパラメータの取得: `new URL(Astro.request.url).searchParams.get("name")`
+- `---` 内のコードがリクエストごとに実行される（時刻やランダム値が毎回変わる）
+- `getStaticPaths()` は不要（動的にページを生成するため）
+
+### 現在のサイト構成
+| ページ | モード | 理由 |
+|:--|:--|:--|
+| `/` | SSG (`prerender = true`) | 静的でOK |
+| `/about` | SSG | 静的でOK |
+| `/blog`, `/blog/[id]` | SSG | 記事は事前ビルドでOK |
+| `/ssr-demo` | SSR（デフォルト） | リクエストごとに内容が変わる |
+
 ---
 
 ## 次のステップ

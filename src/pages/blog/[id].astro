@@ -1,4 +1,7 @@
 ---
+// SSGとして事前ビルドする（getStaticPaths が必要）
+export const prerender = true;
+
 import Layout from '../../layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
 
