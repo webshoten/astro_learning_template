@@ -19,12 +19,19 @@ const HelloQuery = graphql(`
   }
 `);
 
+const Hello2Query = graphql(`
+  query Hello2($name: String) {
+    hello2(name: $name)
+  }
+`);
+
 // executeGraphQL を使うと戻り値に型が付く！
 // postsResult の型: { posts: { id: string, title: string, date: string }[] }
 const postsResult = await executeGraphQL(PostsQuery);
 
 // variables にも型が効く（name: String と推論される）
 const helloResult = await executeGraphQL(HelloQuery, { name: "Astro" });
+const hello2Result = await executeGraphQL(Hello2Query, { name: "Astro" });
 ---
 
 <Layout title="GraphQLデモ">
@@ -32,7 +39,8 @@ const helloResult = await executeGraphQL(HelloQuery, { name: "Astro" });
 
   <h2>1. hello クエリ</h2>
   <p>{helloResult?.hello}</p>
-
+  <p>{hello2Result?.hello2}</p>
+  
   <h2>2. posts クエリ（型付き！）</h2>
   <ul>
     {postsResult?.posts.map((post) => (

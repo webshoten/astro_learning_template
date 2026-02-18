@@ -7,6 +7,7 @@ export const schema = createSchema({
   typeDefs: /* GraphQL */ `
     type Query {
       hello(name: String): String!
+      hello2(name: String): String!
       posts: [Post!]!
       post(id: String!): Post
     }
@@ -21,8 +22,14 @@ export const schema = createSchema({
   resolvers: {
     Query: {
       // hello(name: "太郎") → "こんにちは、太郎さん！"
-      hello: (_, { name }) => `こんにちは、${name || "ゲスト"}さん！`,
-
+      hello: (_, { name }) => {
+        console.log("hello resolver called with name:", name);
+        return `こんにちは、${name || "ゲスト"}さん！あ`
+      },
+      hello2: (_, { name }) => {
+        console.log("hello2 resolver called with name:", name);
+        return `こんにちは、${name || "ゲスト"}さん！あ`
+      },
       // posts → 全記事を返す
       posts: () => MOCK_POSTS,
 

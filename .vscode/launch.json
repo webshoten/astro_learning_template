@@ -2,10 +2,23 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "command": "./node_modules/.bin/astro dev",
-      "name": "Development server",
+      "name": "Astro Dev (デバッグ)",
+      "type": "node",
       "request": "launch",
-      "type": "node-terminal"
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["astro", "dev"],
+      "restart": true,
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "node_modules/**"]
+    },
+    {
+      "name": "Astro Dev + Codegen Watch (デバッグ)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:all"],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "node_modules/**"]
     }
   ]
 }
