@@ -1,5 +1,5 @@
 ---
-// ナビゲーションコンポーネント
+import CartCount from "./CartCount.tsx";
 ---
 
 <nav>
@@ -12,6 +12,8 @@
   <a href="/middleware-demo">ミドルウェア</a>
   <a href="/protected">保護ページ</a>
   <a href="/image-demo">画像最適化</a>
+  <a href="/nano-stores-demo">Nano Stores</a>
+  <CartCount client:load />
 </nav>
 
 <style>

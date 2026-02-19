@@ -1,0 +1,24 @@
+---
+import Layout from "../layouts/Layout.astro";
+import CartCount from "../components/CartCount.tsx";
+import ProductList from "../components/ProductList.tsx";
+---
+
+<Layout title="Nano Stores デモ">
+  <h1>Nano Stores デモ</h1>
+
+  <p>
+    <strong>注目ポイント：</strong>
+    「カートに追加」を押すと、下のカート内容と上のナビの 🛒 が<strong>同時に</strong>更新される。<br />
+    2つは別々の Island だが、同じストアを共有しているため。
+  </p>
+
+  <h2>Island A: カートアイコン（読む側）</h2>
+  <p>ナビにも同じコンポーネントが使われている。</p>
+  <div style="font-size: 1.5rem; padding: 1rem; border: 1px solid #ccc; display: inline-block;">
+    <CartCount client:load />
+  </div>
+
+  <h2>Island B: 商品リスト（読む・書く側）</h2>
+  <ProductList client:load />
+</Layout>

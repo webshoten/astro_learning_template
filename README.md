@@ -656,8 +656,80 @@ export default defineConfig({
 
 ---
 
+## Nano Stores (2026-02-19)
+
+### やったこと
+1. `nanostores` と `@nanostores/react` をインストール
+2. `src/stores/cartStore.ts` に `atom`（カート数）と `map`（カート内容）を定義
+3. `CartCount.tsx`（読む側）と `ProductList.tsx`（読む・書く側）を作成
+4. `/nano-stores-demo` で2つの Island が同じストアを共有するデモを実装
+5. ナビに `CartCount` Island を追加
+
+### Nano Stores とは
+- Astroが公式に推奨する軽量な状態管理ライブラリ
+- **Island をまたいでリアクティブに状態を共有**できる
+- ストアが更新されると `useStore()` で購読している全コンポーネントが自動で再レンダリングされる
+
+```
+Island A（CartCount）──┐
+                       ├── cartStore（共有の状態）
+Island B（ProductList）┘
+    ↑ どちらかが更新すると両方に反映される
+```
+
+### 学んだこと
+
+#### ストアの種類
+
+| | 用途 | 更新方法 |
+|---|---|---|
+| `atom(初期値)` | 数値・文字列・真偽値などプリミティブな値 | `.set(新しい値)` |
+| `map(初期値)` | オブジェクト（キーごとに更新できる） | `.setKey(キー, 値)` |
+
+#### ストアの定義
+
+```ts
+// src/stores/cartStore.ts
+import { atom, map } from "nanostores";
+
+export const cartCount = atom(0);
+export const cartItems = map<Record<string, CartItem>>({});
+```
+
+#### コンポーネントで使う
+
+```tsx
+import { useStore } from "@nanostores/react";
+import { cartCount } from "../stores/cartStore";
+
+export default function CartCount() {
+  // useStore: 値を読み取り、変化があると自動で再レンダリング
+  const count = useStore(cartCount);
+  return <span>🛒 {count}</span>;
+}
+```
+
+#### ストアを更新する
+
+```ts
+import { cartCount, cartItems } from "../stores/cartStore";
+
+// atom の更新
+cartCount.set(cartCount.get() + 1);
+
+// map の更新（キーごとに更新できる）
+cartItems.setKey("商品名", { name: "商品名", price: 1000, quantity: 1 });
+```
+
+#### .astro ファイルでの注意点
+- ストアを使うコンポーネントには `client:load` などのディレクティブが必要
+- `.astro` のフロントマターはサーバー側なので `useStore()` は使えない
+
+---
+
 ## 次のステップ
 - [x] 画像最適化: `<Image />` で自動リサイズ・WebP変換
+- [x] Nano Stores: Island間の状態共有
 - [ ] 認証: セッション・Cookie の本格的な管理
 - [ ] データベース連携: Prisma / Drizzle
 - [ ] デプロイ: 実際にサイトを公開する
