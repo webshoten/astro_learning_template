@@ -885,10 +885,80 @@ Node アダプターでは ISR は直接使えないが、Vercel にデプロイ
 
 ---
 
+## Server Islands (2026-02-19)
+
+### やったこと
+1. `src/components/DynamicInfo.astro` をServer Islandコンポーネントとして作成
+2. `src/pages/server-islands-demo.astro` でSSGページにServer Islandを埋め込み
+3. フォールバック表示（読み込み中）を実装
+
+### Server Islands とは
+- ページ本体はSSG（静的・高速）のまま、一部だけリクエスト時にサーバーで描画する仕組み
+- Astro 5 の新機能
+
+```
+ページ本体（SSG）→ 即座に表示
+    +
+server:defer コンポーネント → サーバーに別リクエスト → 後から埋め込まれる
+```
+
+### 学んだこと
+
+#### 基本的な使い方
+
+```astro
+---
+// ページ本体はSSG
+export const prerender = true;
+import DynamicInfo from '../components/DynamicInfo.astro';
+---
+
+<!-- server:defer でServer Islandにする -->
+<DynamicInfo server:defer>
+  <!-- 読み込み中に表示するフォールバック -->
+  <div slot="fallback">読み込み中...</div>
+</DynamicInfo>
+```
+
+#### Server Island コンポーネント側
+
+```astro
+---
+// リクエスト時にサーバーで実行される
+const time = new Date().toLocaleTimeString("ja-JP");
+---
+
+<p>現在時刻: {time}</p>
+```
+
+#### `client:load` vs `server:defer` の違い
+
+| | `client:load` | `server:defer` |
+|---|---|---|
+| 実行場所 | ブラウザ（クライアント） | サーバー |
+| 用途 | インタラクティブなUI（React等） | 動的なデータ取得 |
+| JS の送信 | コンポーネントの JS を送る | JS は送らない |
+| 使えるコンポーネント | React / Vue / Svelte 等 | `.astro` コンポーネント |
+
+#### ISR との違い
+- **ISR** → ページ全体を定期的に再生成する
+- **Server Islands** → ページの一部をリクエストごとにサーバーで描画する
+
+#### フォールバックの仕組み
+```astro
+<DynamicComponent server:defer>
+  <div slot="fallback">⏳ 読み込み中...</div>
+</DynamicComponent>
+```
+Server Island の取得中は `slot="fallback"` の内容が表示され、取得完了後に切り替わる。
+
+---
+
 ## 次のステップ
 - [x] 画像最適化: `<Image />` で自動リサイズ・WebP変換
 - [x] Nano Stores: Island間の状態共有
 - [x] Astro Actions: 型安全なフォーム処理
+- [x] Server Islands: SSGページへの動的コンポーネント埋め込み
 - [ ] 認証: セッション・Cookie の本格的な管理
 - [ ] データベース連携: Prisma / Drizzle
 - [ ] デプロイ: 実際にサイトを公開する

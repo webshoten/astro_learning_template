@@ -1,0 +1,54 @@
+---
+// このページ自体はSSG（ビルド時に生成される静的HTML）
+export const prerender = true;
+
+import Layout from "../layouts/Layout.astro";
+import DynamicInfo from "../components/DynamicInfo.astro";
+
+// ビルド時に実行される（固定値になる）
+const builtAt = new Date().toLocaleTimeString("ja-JP");
+---
+
+<Layout title="Server Islands デモ">
+  <h1>Server Islands デモ</h1>
+
+  <h2>静的な部分（SSG）</h2>
+  <div class="static-box">
+    <p>📦 このコンテンツはビルド時に生成されました。</p>
+    <p>ビルド時刻: <strong>{builtAt}</strong>（リロードしても変わらない）</p>
+  </div>
+
+  <h2>動的な部分（Server Island）</h2>
+  <p>
+    <code>server:defer</code> を付けたコンポーネントは、<br />
+    ページ本体の後にサーバーへ別リクエストを送り、結果を埋め込む。
+  </p>
+
+  <!--
+    server:defer: このコンポーネントをServer Islandにする
+    slot="fallback": 読み込み中に表示するコンテンツ
+  -->
+  <DynamicInfo server:defer>
+    <div slot="fallback" class="fallback">
+      ⏳ サーバーからデータを取得中...
+    </div>
+  </DynamicInfo>
+</Layout>
+
+<style>
+  .static-box {
+    padding: 1rem;
+    background: #f0fff4;
+    border: 1px solid #9ae6b4;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+  }
+
+  .fallback {
+    padding: 1rem;
+    background: #fffbeb;
+    border: 1px solid #f6e05e;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+  }
+</style>

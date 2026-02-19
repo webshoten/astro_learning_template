@@ -1,0 +1,26 @@
+---
+// このコンポーネントは server:defer で呼ばれたとき、
+// リクエスト時にサーバーで実行される（ページ本体とは別のリクエスト）
+
+// わざと1秒待って「遅いデータ取得」を再現する
+await new Promise((resolve) => setTimeout(resolve, 1000));
+
+const time = new Date().toLocaleTimeString("ja-JP");
+const randomNum = Math.floor(Math.random() * 100);
+---
+
+<div class="dynamic-box">
+  <p>⏰ サーバー取得時刻: <strong>{time}</strong></p>
+  <p>🎲 ランダム数値: <strong>{randomNum}</strong></p>
+  <p>（リロードするたびに変わります）</p>
+</div>
+
+<style>
+  .dynamic-box {
+    padding: 1rem;
+    background: #e8f4fd;
+    border: 1px solid #90cdf4;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+  }
+</style>
