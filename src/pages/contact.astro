@@ -1,0 +1,131 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { actions, isInputError } from "astro:actions";
+
+// getActionResult: フォーム送信後の結果を受け取る
+// 送信前は null、送信後は { data } or { error } が入る
+const result = Astro.getActionResult(actions.contact);
+
+// isInputError: バリデーションエラーかどうかを判定するヘルパー
+const inputErrors = isInputError(result?.error) ? result.error.fields : {};
+---
+
+<Layout title="お問い合わせ">
+  <h1>お問い合わせ</h1>
+
+  {/* 送信成功 */}
+  {result?.data && (
+    <div class="success">
+      <p>✅ {result.data.name} さん、お問い合わせありがとうございました！</p>
+      <p>内容を確認次第、ご連絡いたします。</p>
+    </div>
+  )}
+
+  {/* 送信フォーム（成功時は非表示） */}
+  {!result?.data && (
+    <form method="POST" action={actions.contact}>
+      <div class="field">
+        <label for="name">お名前 <span class="required">*</span></label>
+        <input
+          type="text"
+          id="name"
+          name="name"
+          placeholder="山田 太郎"
+        />
+        {/* フィールドごとのエラーメッセージ */}
+        {inputErrors.name && (
+          <p class="error">{inputErrors.name.join(", ")}</p>
+        )}
+      </div>
+
+      <div class="field">
+        <label for="email">メールアドレス <span class="required">*</span></label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="taro@example.com"
+        />
+        {inputErrors.email && (
+          <p class="error">{inputErrors.email.join(", ")}</p>
+        )}
+      </div>
+
+      <div class="field">
+        <label for="message">メッセージ <span class="required">*</span></label>
+        <textarea
+          id="message"
+          name="message"
+          rows={5}
+          placeholder="お問い合わせ内容をご記入ください（10文字以上）"
+        ></textarea>
+        {inputErrors.message && (
+          <p class="error">{inputErrors.message.join(", ")}</p>
+        )}
+      </div>
+
+      <button type="submit">送信する</button>
+    </form>
+  )}
+</Layout>
+
+<style>
+  form {
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  label {
+    font-weight: bold;
+    font-size: 0.9rem;
+  }
+
+  .required {
+    color: #e00;
+  }
+
+  input, textarea {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+
+  .error {
+    color: #e00;
+    font-size: 0.85rem;
+    margin: 0;
+  }
+
+  button {
+    padding: 0.75rem 1.5rem;
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    align-self: flex-start;
+  }
+
+  button:hover {
+    background-color: #555;
+  }
+
+  .success {
+    padding: 1rem;
+    background-color: #e6f4ea;
+    border: 1px solid #a8d5b5;
+    border-radius: 4px;
+    max-width: 480px;
+  }
+</style>

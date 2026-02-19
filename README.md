@@ -727,9 +727,168 @@ cartItems.setKey("商品名", { name: "商品名", price: 1000, quantity: 1 });
 
 ---
 
+## Astro Actions (2026-02-19)
+
+### やったこと
+1. `src/actions/index.ts` にお問い合わせフォームのActionを定義
+2. zod でバリデーションルールを定義（名前・メール・メッセージ）
+3. `/contact` ページでフォーム送信・エラー表示・成功メッセージを実装
+
+### Astro Actions とは
+- フォーム送信やサーバー処理を型安全に書ける Astro 5 の機能
+- バリデーション・エラー処理・型推論が自動で行われる
+
+**従来の API Routes との比較：**
+
+| | API Routes（`/api/xxx.ts`） | Actions |
+|---|---|---|
+| バリデーション | 自分で書く | zod で宣言するだけ |
+| 型 | 手動で定義 | 自動推論 |
+| エラー処理 | 自分で統一する | `isInputError()` で判定 |
+| フォームとの連携 | `action="/api/xxx"` | `action={actions.xxx}` |
+
+### 学んだこと
+
+#### Action の定義
+
+```ts
+// src/actions/index.ts
+import { defineAction } from "astro:actions";
+import { z } from "astro:schema";
+
+export const server = {
+  contact: defineAction({
+    accept: "form", // HTMLフォームからの送信を受け付ける
+    input: z.object({
+      name: z.string().min(1, "名前を入力してください"),
+      email: z.string().email("正しいメールアドレスを入力してください"),
+      message: z.string().min(10, "メッセージは10文字以上で入力してください"),
+    }),
+    handler: async (input) => {
+      // input は型付き・バリデーション済みの値
+      // ここでメール送信やDB保存を行う
+      return { name: input.name };
+    },
+  }),
+};
+```
+
+#### フォームページでの使い方
+
+```astro
+---
+import { actions, isInputError } from "astro:actions";
+
+// フォーム送信後の結果を受け取る（送信前は null）
+const result = Astro.getActionResult(actions.contact);
+
+// バリデーションエラーのフィールドごとのメッセージを取得
+const inputErrors = isInputError(result?.error) ? result.error.fields : {};
+---
+
+{/* 成功時 */}
+{result?.data && <p>送信成功: {result.data.name} さん</p>}
+
+{/* フォーム */}
+<form method="POST" action={actions.contact}>
+  <input name="name" />
+  {inputErrors.name && <p class="error">{inputErrors.name.join(", ")}</p>}
+
+  <input name="email" type="email" />
+  {inputErrors.email && <p class="error">{inputErrors.email.join(", ")}</p>}
+
+  <textarea name="message"></textarea>
+  {inputErrors.message && <p class="error">{inputErrors.message.join(", ")}</p>}
+
+  <button type="submit">送信</button>
+</form>
+```
+
+#### 重要なポイント
+- `src/actions/index.ts` に `export const server = { ... }` で定義する
+- `accept: "form"` を指定することで HTML フォームからの送信に対応する
+- バリデーション失敗時は `handler` は実行されず、自動でエラーが返る
+- `isInputError()` でバリデーションエラーかサーバーエラーかを判定できる
+- JSなしでも動作する（Progressive Enhancement）
+
+---
+
+## ISR（Incremental Static Regeneration）調査 (2026-02-19)
+
+### 調査内容
+Next.js の ISR のように「ビルド後も一定時間で静的ページを再生成」できるか調査。
+
+### Next.js ISR とは
+```
+初回ビルド → 静的HTML生成
+    ↓
+一定時間後にリクエストが来たら → バックグラウンドで再生成
+    ↓
+次のリクエストから新しいHTMLが返る（Stale While Revalidate）
+```
+
+### Astro での選択肢
+
+#### 1. `getStaticPaths` — ISR なし（純粋な SSG）
+ビルド時に1回だけ生成。再デプロイしない限り更新されない。
+
+#### 2. SSR + Cache ヘッダー — ISR に近い
+SSR ページにキャッシュヘッダーを付けると、CDN が一定時間キャッシュする。
+
+```astro
+---
+Astro.response.headers.set(
+  'Cache-Control',
+  's-maxage=60, stale-while-revalidate=3600'
+);
+---
+```
+CDN 側の対応が必要（Vercel、Cloudflare など）。
+
+#### 3. Vercel アダプターの ISR サポート
+`@astrojs/vercel` アダプターを使うと Vercel インフラの ISR を直接使える。
+
+```js
+// astro.config.mjs
+import vercel from '@astrojs/vercel';
+
+export default defineConfig({
+  adapter: vercel({
+    isr: {
+      expiration: 60, // 60秒後に再生成
+    }
+  })
+});
+```
+
+#### 4. Server Islands（Astro 5 新機能）— 別のアプローチ
+ページの一部だけをサーバーで遅延レンダリングする仕組み。ISR とは違うが、「静的ページの一部だけ動的にしたい」問題を解決する。
+
+```astro
+<!-- ここは静的HTML -->
+<h1>記事タイトル</h1>
+
+<!-- ここだけサーバーで後から描画 -->
+<DynamicPart server:defer />
+```
+
+### まとめ
+
+| 方法 | ISR に近い？ | 条件 |
+|---|---|---|
+| `getStaticPaths` | ❌ | 純粋 SSG、再デプロイ必要 |
+| SSR + Cache ヘッダー | ✅ | CDN 対応のインフラが必要 |
+| Vercel アダプター ISR | ✅ | Vercel にデプロイする場合 |
+| Server Islands | △ | ISR とは別の概念 |
+
+Node アダプターでは ISR は直接使えないが、Vercel にデプロイすれば Next.js と同様の ISR が使える。
+
+---
+
 ## 次のステップ
 - [x] 画像最適化: `<Image />` で自動リサイズ・WebP変換
 - [x] Nano Stores: Island間の状態共有
+- [x] Astro Actions: 型安全なフォーム処理
 - [ ] 認証: セッション・Cookie の本格的な管理
 - [ ] データベース連携: Prisma / Drizzle
 - [ ] デプロイ: 実際にサイトを公開する
