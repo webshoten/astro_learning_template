@@ -7,12 +7,15 @@ import node from '@astrojs/node';
 
 // https://astro.build/config
 export default defineConfig({
-  // 'server' = デフォルトSSR（ページごとにSSGに切り替え可能）
-  // 'static' = デフォルトSSG（デフォルト。今まではこれだった）
   output: 'server',
   integrations: [react()],
 
   adapter: node({
     mode: 'standalone'
-  })
+  }),
+
+  image: {
+    // リモート画像を最適化する場合、許可するドメインを明示する（セキュリティのため）
+    domains: ["picsum.photos"],
+  },
 });

@@ -560,8 +560,104 @@ if (PROTECTED_PATHS.includes(pathname)) {
 
 ---
 
+## 画像最適化 (2026-02-19)
+
+### やったこと
+1. `src/assets/sample.jpg` にサンプル画像を追加
+2. `/image-demo` ページで各機能を比較デモ
+3. `astro.config.mjs` にリモート画像の許可ドメインを設定
+
+### `src/assets/` vs `public/` の違い
+
+| | `src/assets/` | `public/` |
+|---|---|---|
+| 処理 | Astroがビルド時に最適化 | そのままコピーされる |
+| `<Image />` | 使える（import して渡す） | 使えない（パス文字列のみ） |
+| 用途 | ページで使う画像 | favicon、OGP画像など |
+
+### 学んだこと
+
+#### `<Image />` コンポーネントが自動でやること
+- **WebP変換** — JPG/PNGを自動でWebPに変換（ファイルサイズ削減）
+- **リサイズ** — 指定したサイズに最適化
+- **`loading="lazy"`** — 遅延読み込みを自動付与
+- **`width`/`height`** — CLS（レイアウトずれ）防止のため自動付与
+
+```astro
+---
+import { Image } from "astro:assets";
+import sampleImage from "../assets/sample.jpg";
+---
+
+<Image src={sampleImage} width={400} alt="説明文" />
+```
+
+#### `quality` オプション
+```astro
+<Image src={image} width={300} quality={10} alt="低画質・軽量" />
+<Image src={image} width={300} quality={90} alt="高画質・重め" />
+```
+- 数値は `1〜100`。デフォルトは `80`
+- 低いほどファイルサイズが小さくなる
+
+#### `format` オプション
+```astro
+<Image src={image} width={300} format="avif" alt="AVIF形式" />
+```
+
+| フォーマット | 特徴 |
+|---|---|
+| `webp` | 広くサポート、デフォルト |
+| `avif` | より高圧縮、新しいブラウザのみ |
+| `jpeg` / `png` | 従来形式 |
+
+#### `<Picture />` コンポーネント
+複数フォーマットを並べて提供し、ブラウザが対応しているものを自動選択する。
+
+```astro
+---
+import { Picture } from "astro:assets";
+---
+
+<Picture src={image} formats={["avif", "webp"]} alt="..." />
+```
+
+生成されるHTML：
+```html
+<picture>
+  <source type="image/avif" srcset="...avif" />
+  <source type="image/webp" srcset="...webp" />
+  <img src="...webp" ... />  <!-- フォールバック -->
+</picture>
+```
+
+#### リモート画像
+外部URLの画像も最適化できる。`height` の指定が必須（Astroがサイズを自動取得できないため）。
+
+```astro
+<Image
+  src="https://example.com/photo.jpg"
+  width={400}
+  height={267}
+  alt="リモート画像"
+/>
+```
+
+許可ドメインを `astro.config.mjs` に設定する必要がある（セキュリティのため）：
+
+```js
+// astro.config.mjs
+export default defineConfig({
+  image: {
+    domains: ["example.com"],
+  },
+});
+```
+
+---
+
 ## 次のステップ
-- [ ] 画像最適化: `<Image />` で自動リサイズ・WebP変換
+- [x] 画像最適化: `<Image />` で自動リサイズ・WebP変換
 - [ ] 認証: セッション・Cookie の本格的な管理
 - [ ] データベース連携: Prisma / Drizzle
 - [ ] デプロイ: 実際にサイトを公開する

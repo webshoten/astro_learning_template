@@ -1,0 +1,80 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Image, Picture } from "astro:assets";
+
+import sampleImage from "../assets/sample.jpg";
+---
+
+<Layout title="画像最適化デモ">
+  <h1>画像最適化デモ</h1>
+
+  <h2>1. 通常の &lt;img&gt; タグ</h2>
+  <p>最適化なし。元のJPEGがそのまま使われる。</p>
+  <img src={sampleImage.src} width="400" alt="通常のimgタグ" />
+
+  <h2>2. &lt;Image /&gt; 基本</h2>
+  <p>自動でWebP変換・loading="lazy"・width/height付与。</p>
+  <Image
+    src={sampleImage}
+    width={400}
+    alt="AstroのImage コンポーネント"
+  />
+
+  <h2>3. quality オプション</h2>
+  <p>画質を指定できる（1〜100）。低いほどファイルサイズが小さくなる。</p>
+  <div class="row">
+    <div>
+      <p>quality=10（低画質・軽量）</p>
+      <Image src={sampleImage} width={300} quality={10} alt="低画質" />
+    </div>
+    <div>
+      <p>quality=90（高画質・重め）</p>
+      <Image src={sampleImage} width={300} quality={90} alt="高画質" />
+    </div>
+  </div>
+
+  <h2>4. format オプション</h2>
+  <p>出力フォーマットを明示的に指定できる。</p>
+  <div class="row">
+    <div>
+      <p>format="webp"（デフォルト）</p>
+      <Image src={sampleImage} width={300} format="webp" alt="WebP形式" />
+    </div>
+    <div>
+      <p>format="avif"（より高圧縮）</p>
+      <Image src={sampleImage} width={300} format="avif" alt="AVIF形式" />
+    </div>
+  </div>
+
+  <h2>5. &lt;Picture /&gt; コンポーネント</h2>
+  <p>
+    複数フォーマットを並べて提供し、ブラウザが対応しているものを使う。<br />
+    AVIFに対応していないブラウザは自動でWebPにフォールバックする。
+  </p>
+  <Picture
+    src={sampleImage}
+    width={400}
+    formats={["avif", "webp"]}
+    alt="Pictureコンポーネント"
+  />
+
+  <h2>6. リモート画像</h2>
+  <p>
+    外部URLの画像も最適化できる。<br />
+    ただし astro.config.mjs に許可ドメインの設定が必要。
+  </p>
+  <Image
+    src="https://picsum.photos/seed/astro2/600/400.jpg"
+    width={400}
+    height={267}
+    alt="リモート画像"
+  />
+</Layout>
+
+<style>
+  .row {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+  }
+</style>
