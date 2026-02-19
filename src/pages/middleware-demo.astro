@@ -1,0 +1,22 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+// ミドルウェアでセットされた locals をここで受け取る
+// 型は env.d.ts の App.Locals で定義済みなので補完も効く
+const { requestId, visitedAt } = Astro.locals;
+---
+
+<Layout title="ミドルウェアデモ">
+  <h1>ミドルウェアデモ</h1>
+  <p>ミドルウェアが各リクエストにデータを付与しています。</p>
+
+  <h2>Astro.locals から受け取ったデータ</h2>
+  <ul>
+    <li>リクエストID: <code>{requestId}</code></li>
+    <li>アクセス時刻: <code>{visitedAt}</code></li>
+  </ul>
+
+  <p>リロードするたびに <code>requestId</code> が変わります。</p>
+
+  <a href="/">← トップに戻る</a>
+</Layout>

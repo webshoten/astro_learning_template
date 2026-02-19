@@ -13,7 +13,7 @@
     "plugins": [
       {
         "name": "gql.tada/ts-plugin",
-        "schema": "./src/graphql/introspection.ts",
+        "schema": "./src/graphql/introspection.graphql",
         "tadaOutputLocation": "./src/graphql/graphql-env.d.ts"
       }
     ]

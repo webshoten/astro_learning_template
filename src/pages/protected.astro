@@ -1,0 +1,17 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+// このページはミドルウェアで保護されている
+// 未ログインの場合、ここまで到達しない（/login にリダイレクトされる）
+---
+
+<Layout title="保護されたページ">
+  <h1>🔒 保護されたページ</h1>
+  <p>ログイン済みの人だけが見られるページです。</p>
+
+  <form method="POST" action="/api/logout">
+    <button type="submit">ログアウト</button>
+  </form>
+
+  <a href="/">← トップに戻る</a>
+</Layout>

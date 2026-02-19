@@ -419,10 +419,149 @@ src/graphql/
 └── graphql-env.d.ts   ... 型情報（generate-outputで生成）
 ```
 
+## ミドルウェア (2026-02-19)
+
+### やったこと
+1. `src/middleware.ts` を作成しリクエストのロギングを実装
+2. `src/env.d.ts` で `App.Locals` の型定義を追加
+3. `locals` でミドルウェアからページへデータを渡す仕組みを実装（`/middleware-demo`）
+4. `/protected` へのアクセス制御（Cookie認証）を実装
+5. `/login` と `/api/login`, `/api/logout` を作成
+
+### 学んだこと
+
+#### ミドルウェアの基本構造
+- `src/middleware.ts` に `onRequest` をエクスポートするだけで有効になる
+- `next()` を呼ぶと次の処理（ページ・APIルート）に進む
+- `next()` の前後に処理を挟める（リクエスト前・レスポンス後）
+
+```ts
+import { defineMiddleware } from "astro:middleware";
+
+export const onRequest = defineMiddleware(async (context, next) => {
+  // リクエスト前の処理
+
+  const response = await next();
+
+  // レスポンス後の処理
+  return response;
+});
+```
+
+#### locals でページにデータを渡す
+- `context.locals.xxx` でセット → `Astro.locals.xxx` でページから読み取れる
+- 型は `src/env.d.ts` の `App.Locals` インターフェースで宣言する
+
+```ts
+// env.d.ts
+declare namespace App {
+  interface Locals {
+    requestId: string;
+    visitedAt: string;
+  }
+}
+```
+
+```ts
+// middleware.ts
+context.locals.requestId = crypto.randomUUID();
+```
+
+```astro
+---
+// ページ側
+const { requestId } = Astro.locals;
+---
+```
+
+#### アクセス制御（リダイレクト）
+- `next()` を呼ばずに `return context.redirect("/login")` するとページをスキップできる
+
+```ts
+const PROTECTED_PATHS = ["/protected"];
+
+if (PROTECTED_PATHS.includes(pathname)) {
+  const cookie = context.request.headers.get("cookie") ?? "";
+  if (!cookie.includes("auth=true")) {
+    return context.redirect("/login"); // ページの処理をスキップ
+  }
+}
+```
+
+#### リダイレクトのフロー
+
+**ログインしていない場合（リダイレクト発生）**
+```
+ブラウザ → GET /protected
+               ↓
+         middleware.ts
+           1. pathname = "/protected"
+           2. PROTECTED_PATHS に含まれる？ → YES
+           3. Cookie に auth=true がある？ → NO
+           4. context.redirect("/login") を return
+              ↑ next() は呼ばれない = protected.astro は実行されない
+               ↓
+         302 レスポンス（Location: /login）がブラウザへ返る
+               ↓
+         ブラウザが自動で GET /login を送信
+               ↓
+         middleware.ts（再度実行）
+           1. pathname = "/login"
+           2. PROTECTED_PATHS に含まれる？ → NO
+           3. next() を呼ぶ
+               ↓
+         login.astro が実行 → HTMLをレスポンス
+               ↓
+         ブラウザがログインページを表示
+```
+
+**ログインする場合**
+```
+ブラウザ → POST /api/login（ボタンを押したとき）
+               ↓
+         middleware.ts
+           pathname = "/api/login" → 保護対象外
+           next() を呼ぶ
+               ↓
+         api/login.ts が実行
+           302 レスポンスを返す
+           Set-Cookie: auth=true; HttpOnly
+               ↓
+         ブラウザが Cookie を保存 + 自動で GET /protected を送信
+               ↓
+         middleware.ts
+           1. pathname = "/protected"
+           2. Cookie に auth=true がある？ → YES（今度はある）
+           3. next() を呼ぶ
+               ↓
+         protected.astro が実行 → HTMLをレスポンス
+               ↓
+         ブラウザが保護ページを表示
+```
+
+**ログアウトする場合**
+```
+ブラウザ → POST /api/logout（ボタンを押したとき）
+               ↓
+         api/logout.ts が実行
+           Set-Cookie: auth=true; Max-Age=0  ← Max-Age=0 で即削除
+           302 レスポンス（Location: /login）
+               ↓
+         ブラウザが Cookie を削除 + 自動で GET /login を送信
+               ↓
+         login.astro が表示される
+```
+
+#### 重要なポイント
+- ミドルウェアは**サーバーで実行**される（`console.log` はターミナルに出力される）
+- `prerender = true` のSSGページにはミドルウェアは**実行されない**
+- `next()` を呼ばずに `return` するとページの処理をスキップできる
+- `HttpOnly` を Cookie に付けると JS（`document.cookie`）から読めなくなり、XSS攻撃でCookieが盗まれにくくなる
+
 ---
 
 ## 次のステップ
 - [ ] 画像最適化: `<Image />` で自動リサイズ・WebP変換
-- [ ] 環境変数: `.env` でAPIキー等を管理
-- [ ] ミドルウェア: リクエスト前の共通処理
+- [ ] 認証: セッション・Cookie の本格的な管理
+- [ ] データベース連携: Prisma / Drizzle
 - [ ] デプロイ: 実際にサイトを公開する

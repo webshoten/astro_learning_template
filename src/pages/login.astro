@@ -1,0 +1,12 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="ログイン">
+  <h1>ログイン</h1>
+  <p>/protected にアクセスするにはログインが必要です。</p>
+
+  <form method="POST" action="/api/login">
+    <button type="submit">ログイン</button>
+  </form>
+</Layout>

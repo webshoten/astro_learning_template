@@ -8,7 +8,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "codegen": "gql.tada generate-schema http://localhost:4321/api/graphql --output src/graphql/introspection.ts && gql.tada generate-output --tsconfig tsconfig.json",
+    "codegen": "gql.tada generate-schema http://localhost:4321/api/graphql --output src/graphql/introspection.graphql && gql.tada generate-output --tsconfig tsconfig.json",
     "codegen:watch": "chokidar \"src/graphql/schema.ts\" -c \"npm run codegen\" --initial"
   },
   "dependencies": {
