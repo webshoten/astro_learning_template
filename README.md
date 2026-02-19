@@ -954,11 +954,86 @@ Server Island の取得中は `slot="fallback"` の内容が表示され、取�
 
 ---
 
+## Astro ディレクティブ一覧 (2026-02-19)
+
+### クライアント Island 系（`client:*`）
+
+コンポーネントをいつ・どのようにハイドレーションするかを制御する。
+
+| ディレクティブ | タイミング | 用途 |
+|---|---|---|
+| `client:load` | ページ読み込み後すぐ | 重要なインタラクティブUI |
+| `client:idle` | ブラウザが暇になったとき（`requestIdleCallback`） | 優先度の低いUI |
+| `client:visible` | 画面に入ったとき（`IntersectionObserver`） | 下の方にある重いコンポーネント |
+| `client:media="(...)"` | メディアクエリに一致したとき | スマホ専用UIなど |
+| `client:only="react"` | SSRをスキップ、クライアントのみで描画 | `window` 等を使うコンポーネント |
+
+```astro
+<!-- 重要なUIはすぐ -->
+<Header client:load />
+
+<!-- 下の方にある重いコンポーネントは見えたときだけ -->
+<HeavyChart client:visible />
+
+<!-- スマホだけに表示 -->
+<MobileMenu client:media="(max-width: 768px)" />
+
+<!-- SSRするとエラーになるコンポーネント（windowを使う等）はclient:only -->
+<MapComponent client:only="react" />
+```
+
+### サーバー系（`server:*`）
+
+| ディレクティブ | 内容 |
+|---|---|
+| `server:defer` | リクエスト時にサーバーで遅延描画（Server Islands） |
+
+### テンプレート系
+
+| ディレクティブ | 内容 |
+|---|---|
+| `class:list={[...]}` | 条件付きクラスの付与 |
+| `set:html={html}` | innerHTML を直接セット |
+| `set:text={text}` | textContent をセット（XSS安全） |
+| `is:raw` | Astroの処理をスキップ（`{}` をそのまま出力） |
+
+```astro
+<!-- class:list: 条件付きクラス -->
+<div class:list={["box", { active: isActive, disabled: !isActive }]} />
+
+<!-- set:html: HTMLをそのまま埋め込む（信頼できるデータのみ） -->
+<div set:html={markdownContent} />
+```
+
+### スタイル・スクリプト系
+
+| ディレクティブ | 内容 |
+|---|---|
+| `<style is:global>` | スタイルをグローバルに適用 |
+| `<style is:inline>` | バンドルせずインラインで出力 |
+| `<script is:inline>` | スクリプトをバンドルせずそのまま出力 |
+
+### View Transitions 系（`transition:*`）
+
+| ディレクティブ | 内容 |
+|---|---|
+| `transition:name="xxx"` | ページ間で同じ名前の要素をアニメーション連結 |
+| `transition:animate="slide"` | アニメーションの種類を指定 |
+| `transition:persist` | ページ遷移をまたいで要素を維持 |
+
+```astro
+<!-- ブログ一覧と詳細ページで画像をスムーズに遷移させる -->
+<img src={post.cover} transition:name={`cover-${post.id}`} />
+```
+
+---
+
 ## 次のステップ
 - [x] 画像最適化: `<Image />` で自動リサイズ・WebP変換
 - [x] Nano Stores: Island間の状態共有
 - [x] Astro Actions: 型安全なフォーム処理
 - [x] Server Islands: SSGページへの動的コンポーネント埋め込み
+- [x] ディレクティブ一覧: client / server / template / transition
 - [ ] 認証: セッション・Cookie の本格的な管理
 - [ ] データベース連携: Prisma / Drizzle
 - [ ] デプロイ: 実際にサイトを公開する
